@@ -1,24 +1,16 @@
-[<< previous](10-dynamic-pages.md) | [next >>](12-frontend.md)
+[<< 上一节](10-dynamic-pages.md) | [下一节 >>](12-frontend.md)
 
-### Page Menu
+### 页面菜单
 
-Now we have some sweet dynamic pages. But nobody can find them.
+上节中我们已经可以创建很多动态页面了，但是终端用户是不知道这些页面的链接的。所以本节我们来创建导航菜单，为了重用这个菜单，单独创建一个文章，其它的页面只用调用。
 
-Let's fix that now. In this chapter we will create a menu with links to all our pages.
+从实践的角度来看，最开始如果我们使用一个包含模板的扩展模板引擎，这时会省下很多力气来手动创建模板文件，像layout,tempalte之类。很遗憾Mustache本身不包含这些，Twig就是不错的选择，好吧，下面我们使用Twig来完成本节。
 
-When we have a menu, we will want to be able to reuse the same code on multiple page. We could create a separate file and include it every time, but there is a better solution.
+[Twig](http://twig.sensiolabs.org/).
 
-It is more practical to have templates that are able to extend other templates, like a layout for example. Then we can have all the layout related code in a single file and we don't have to include header and footer files in every template.
+自行安装http://twig.sensiolabs.org/
 
-Sadly our implementation of mustache does not support this. We could write code to work around this, which will take time and could introduce some bugs. Or we could switch to a library that already supports this and is well tested. [Twig](http://twig.sensiolabs.org/) for example.
-
-Now you might wonder why we didn't start with Twig right away. This is a good example to show why using interfaces and writing loosely-coupled code is a good idea.
-
-Remember how you created a `MustacheRenderer` in [chapter 9](09-templating.md)? This time, we create a `TwigRenderer` that implements the same interface.
-
-But before we start, install the latest version of Twig with composer.
-
-Then create the a `TwigRenderer.php` in your `src/Template` folder that looks like this:
+在src/Template目录下创建TwigRenderer.php：
 
 ```php 
 <?php
@@ -43,9 +35,9 @@ class TwigRenderer implements Renderer
 }
 ```
 
-As you can see, on the render function call a `.html` is added. This is because Twig does not add a file ending by default and you would have to specifiy it on every call otherwise. By doing it like this, you can use it in the same way as you used Mustache.
+render方法中，模板文件加上了.html后缀，这是因为默认情况下twig模板文件没有后缀。将.html后缀加在这里，就可以和mustache引擎一样使用了。
 
-Add the following code to your `Dependencies.php` file: 
+修改依赖：
 
 ```php
 $injector->delegate('Twig_Environment', function() use ($injector) {
@@ -55,13 +47,16 @@ $injector->delegate('Twig_Environment', function() use ($injector) {
 });
 ```
 
-Instead of just defining the dependencies, we are using a delegate to give the responsibility to create the class to a function. This will be useful in the future.
+这里我们使用delegate来创建类而不是define.后台会讲解有什么作用。
 
-Now you can switch the `Renderer` alias from `MustacheRenderer` to `TwigRenderer`. Now by default Twig will be used instead of Mustache.
+然后修改Dependencies.php中Rendererk别名
 
-If you have a look at the site in your browser, everything should work now as before. Now let's get started with the actual menu.
+```php
+$injector->alias('Example\Template\Renderer', 'Example\Template\TwigRenderer');
 
-To start we will just send a hardcoded array to the template. Go to you `Homepage` controller and change your `$data` array to this:
+```
+
+在Homepage控制器的show方法中修改$data值：
 
 ```php
 $data = [
@@ -70,7 +65,7 @@ $data = [
 ];
 ```
 
-At the top of your `Homepage.html` file add this code:
+将下面的代码放在Homepage.html文件的最上面：
 
 ```php
 {% for item in menuItems %}
@@ -78,13 +73,11 @@ At the top of your `Homepage.html` file add this code:
 {% endfor %}
 ```
 
-Now if you refresh the homepage in the browser, you should see a link.
+刷新页面，就可以看到链接了。
 
-The menu works on the homepage, but we want it on all our pages. We could copy it over to all the template files, but that would be a bad idea. Then if something changes, you would have to go change all the files.
+现在菜单只在首页有效，如果想在其他页面也有的话，复制到其他页面的模板中就可以了。不，这样做很不好。一旦菜单标签要修改，要修改所有的文件。
 
-So instead we are going to use a layout that can be used by all the templates.
-
-Create a `Layout.html` in your `templates` folder with the following content:
+我们可以通过layout布局文件来处理这个,在templates目录下创建Layout.html
 
 ```php
 {% for item in menuItems %}
@@ -95,7 +88,7 @@ Create a `Layout.html` in your `templates` folder with the following content:
 {% endblock %}
 ```
 
-Then change your `Homepage.html` to this:
+修改Homepage.html
 
 ```php
 {% extends "Layout.html" %}
@@ -105,7 +98,7 @@ Then change your `Homepage.html` to this:
 {% endblock %}
 ```
 
-And your `Page.html` to this:
+修改Page.html
 
 ```php
 {% extends "Layout.html" %}
@@ -114,13 +107,9 @@ And your `Page.html` to this:
 {% endblock %}
 ```
 
-If you refresh your homepage now, you should see the menu. But if you go to a subpage, the menu is not there but the `<hr>` line is. 
+刷新首页，菜单出现了。可是子页面没有，只是一个<hr>,这是因为menuItems只传给了首页，我们可以使用全局变量来处理，不过这样不太好。因为站点有很多不同的界面，前台/后台/管理端，这些都需要菜单，全局变量也是个麻烦事。
 
-The problem is that we are only passing the `menuItems` to the homepage. Doing that over and over again for all pages would be a bit tedious and a lot of work if something changes. So let's fix that in the next step.
-
-We could create a global variable that is usable by all templates, but that is not a good idea here. We will add different parts of the site in the future like an admin area and we will have a different menu there.
-
-So instead we will use a custom renderer for the frontend. First we create an empty interface that extends the existing `Renderer` interface. 
+这时我们创建一个新的接口来处理不同的端的菜单需求：
 
 ```php
 <?php
@@ -130,10 +119,9 @@ namespace Example\Template;
 interface FrontendRenderer extends Renderer {}
 ```
 
-By extending it we are saying that any class implementing the `FrontendRenderer` interface can be used where a `Renderer` is required. But not the other way around, because the `FrontendRenderer` can have more functionality as long as it still fulfills the `Renderer` interface.
+基于新的接口的实现类，可以保证使用依赖注入时renderer的约束，也可以为新的render提供很多的方法实现上的差异。
 
-Now of course we also need a class that implements the new interface.
-
+现在创建新的实现类：
 
 ```php
 <?php
@@ -159,29 +147,25 @@ class FrontendTwigRenderer implements FrontendRenderer
 }
 ```
 
-As you can see we have a dependency on a `Renderer` in this class. This class is a wrapper for our `Renderer` and adds the `menuItems` to all `$data` arrays.
+这个类里的renderer作为依赖被注入，然后在render方法中将menuItems赋值给模板
 
-Of course we also need to add another alias to the dependencies file.
+将这个类加入到依赖文件中：
 
 ```php 
 $injector->alias('Example\Template\FrontendRenderer', 'Example\Template\FrontendTwigRenderer');
 ```
 
-Now go to your controllers and exchange all references of `Renderer` with `FrontendRenderer`. Make sure you change it in both the `use` statement at the top and in the constructor.
+然后将控制中的Renderer注入改为FrontendRenderer,确保文件中use了正确的完整路径。
 
-Also delete the following line from the `Homepage` controller:
+删掉Homage控制器中menuItems的赋值：
 
 ```php
 'menuItems' => [['href' => '/', 'text' => 'Homepage']],
 ```
 
-Once that is done, you should see the menu on both the homepage and your subpages.
+做完这些，菜单应该出现在所有页面上了。但是这样的重构并没有涉及菜单本身，所以还需要对菜单进行重构。因为考虑菜单很可能是存在在数据库中的，有必要对菜单进行分离。
 
-Everything should work now, but it doesn't really make sense that the menu is defined in the `FrontendTwigRenderer`. So let's refactor that and move it into it's own class.
-
-Right now the menu is defined in the array, but it is very likely that this will change in the future. Maybe you want to define it in the database or maybe you even want to generate it dynamically based on the pages available. We don't have this information and things might change in the future.
-
-So let's do the right thing here and start with an interface again. But first, create a new folder in the `src` directory for the menu related things. `Menu` sounds like a reasonable name, doesn't it?
+创建/src/Menu目录，并创建MenuReader接口文件MenuReader.php：
 
 ```php
 <?php
@@ -194,7 +178,7 @@ interface MenuReader
 }
 ```
 
-And our very simple implementation will look like this:
+然后做一个简单的实现：
 
 ```php
 <?php
@@ -212,20 +196,14 @@ class ArrayMenuReader implements MenuReader
 }
 ```
 
-This is only a temporary solution to keep things moving forward. We are going to revisit this later.
-
-Before we continue, let's edit the dependencies file to make sure that our application knows which implementation to use when the interface is requested.
-
-Add these lines above the `return` statement:
+暂时先用这种简单的实现方式，后面我们再来细化。修改Dependencies.php:
 
 ```php
 $injector->alias('Example\Menu\MenuReader', 'Example\Menu\ArrayMenuReader');
 $injector->share('Example\Menu\ArrayMenuReader');
 ```
 
-Now you need to change out the hardcoded array in the `FrontendTwigRenderer` class to make it use our new `MenuReader` instead. Give it a try without looking at the solution below.
-
-Did you finish it or did you get stuck? Or are you just lazy? Doesn't matter, here is a working solution:
+然后修改FrontendTwigRenderer，加入依赖注入：
 
 ```php
 <?php
@@ -255,6 +233,6 @@ class FrontendTwigRenderer implements FrontendRenderer
 }
 ```
 
-Everything still working? Awesome. Commit everything and move on to the next chapter.
+这样就实现了Menu的重构，打开浏览器看看。
 
-[<< previous](10-dynamic-pages.md) | [next >>](12-frontend.md)
+[<< 上一节](10-dynamic-pages.md) | [下一节 >>](12-frontend.md)

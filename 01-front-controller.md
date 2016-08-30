@@ -1,20 +1,18 @@
-[next >>](02-composer.md)
+[下一节 >>](02-composer.md)
 
-### Front Controller
+### 前端控制器
 
-A [front controller](http://en.wikipedia.org/wiki/Front_Controller_pattern) is a single point of entry for your application.
+所谓 [所谓前端控制器](http://en.wikipedia.org/wiki/Front_Controller_pattern), 就是应用程序的入口.
 
-To start, create an empty directory for your project. You also need an entry point where all requests will go to. This means you will have to create an `index.php` file.
+创建了应用程序目录，就需要应用程序入口去处理所有的请求，也就是需要一个index.php。
 
-A common way to do this is to just put the `index.php` in the root folder of the projects. This is also how some frameworks do it. Let me explain why you should not do this.
+通常的办法是在网站要目录创建index.php文件，部分框架会这样处理，但是笔者并不推荐这种方式。
 
-The `index.php` is the starting point, so it has to be inside the web server directory. This means that the web server has access to all subdirectories. If you set things up properly, you can still prevent it from accessing your subfolders where your application files are.
+使用根目录的index.php作为程序入口，意味着他会放在http 服务器目录内，这样的http服务器可以访问根目录下所有的子目录。当然如果加上合适的配置，也可以做个禁止HTTP请求访问某些存放代码的子目录。
 
-But sometimes things don't go according to plan. And if something goes wrong and your files are set up as above, your whole application source code could be exposed to visitors. I won't have to explain why this is not a good thing.
+然后有时候如果处理失误，整个应用程序代码就是直播暴露在HTTP讲求之下。
 
-So instead of doing that, create a folder in your project folder called `public`. This is a good time to create an `src` folder for your application, also in the project root folder.
-
-Inside the `public` folder you can now create your `index.php`. Remember that you don't want to expose anything here, so put just the following code in there:
+这时候如果在根目录中创建一个叫做public的子目录，同时创建src目录存放代码可能会更好。然后在public目录中创建index.php，只用在文件中引用下面的代码就可以避免应用程序代码的暴露
 
 ```php
 <?php 
@@ -22,13 +20,13 @@ Inside the `public` folder you can now create your `index.php`. Remember that yo
 require __DIR__ . '/../src/Bootstrap.php';
 ```
 
-`__DIR__` is a [magic constant](http://php.net/manual/en/language.constants.predefined.php) that contains the path of the directory. By using it, you can make sure that the `require` always uses the same relative path to the file it is used in. Otherwise, if you call the `index.php` from a different folder it will not find the file.
+__DIR__ [魔术变量](http://php.net/manual/en/language.constants.predefined.php) 指向当前文件目录，然后使用require来调用Bootstrap文件，这样就可以做到所有的文件调用都有同样的相对路径。相关如果在不同的目录访问index.php，就会出现调用位置的问题。
 
-The `Bootstrap.php` will be the file that wires your application together. We will get to it shortly.
+Bootstrap.php文件将应用程序中各个组件绑定在一起，简化访问。
 
-The rest of the public folder is reserved for your public asset files (like JavaScript files and stylesheets).
+public目录下可以用来存放应用程序所需的静态资源，比如javascript/css样式文件。
 
-Now navigate inside your `src` folder and create a new `Bootstrap.php` file with the following content:
+好了，现在前往src目录，创建Bootstrap.php文件
 
 ```php
 <?php 
@@ -36,10 +34,10 @@ Now navigate inside your `src` folder and create a new `Bootstrap.php` file with
 echo 'Hello World!';
 ```
 
-Now let's see if everything is set up correctly. Open up a console and navigate into your projects `public` folder. In there type `php -S localhost:8000` and press enter. This will start the built-in webserver and you can access your page in a browser with `http://localhost:8000`. You should now see the 'hello world' message.
+好了，现在来看看这样的目录结构是否有问题。打开命令行控制台，进行入应用程序所在目录，进行public目录，输入php -S localhost:8000并回车，这时将会启动php内置的web服务器，然后我们通过浏览器访问http://localhost:8000。你应该已经看到’hello world’的输入了。
 
-If there is an error, go back and try to fix it. If you only see a blank page, check the console window where the server is running for errors.
+如果这里出现错误，仔细检查上面的操作步骤是不是有误。如果出现的是空白页，查看启动web服务器的命令行窗口，应该会出现相关的错误提示。
 
-Now would be a good time to commit your progress. If you are not already using Git, set up a repository now. This is not a Git tutorial so I won't go over the details. But using version control should be a habit, even if it is just for a tutorial project like this.
+最后，可以提交下相关的代码了。推荐使用GIT来进行代码维护，如果你不太熟悉git,建议找一找git教程来学习下。版本控制应该成为一个开发习惯。
 
-[next >>](02-composer.md)
+[下一节 >>](02-composer.md)

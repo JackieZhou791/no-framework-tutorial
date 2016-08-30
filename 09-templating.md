@@ -1,31 +1,28 @@
-[<< previous](08-dependency-injector.md) | [next >>](10-dynamic-pages.md)
+[<< 上一节](08-dependency-injector.md) | [下一节 >>](10-dynamic-pages.md)
 
-### Templating
+### 模板
 
-A template engine is not necessary with PHP because the language itself can take care of that. But it can make things like escaping values easier. They also make it easier to draw a clear line between your application logic and the template files which should only put your variables into the HTML code.
+模板引擎对于PHP来说意义并不大，因为PHP本身可以是模板渲染工具。不过它也有好久，比如过滤数据，分享程序逻辑和模板文件，使变量和HTML更好的结合。
 
-A good quick read on this is [ircmaxell on templating](http://blog.ircmaxell.com/2012/12/on-templating.html). Please also read [this](http://chadminick.com/articles/simple-php-template-engine.html) for a different opinion on the topic. Personally I don't have a strong opinion on the topic, so decide yourself which approach works better for you.
+最好读一读 [ircmaxell on templating](http://blog.ircmaxell.com/2012/12/on-templating.html).以及 [这个](http://chadminick.com/articles/simple-php-template-engine.html), 比较下对于模板引擎的不同观点。笔者本人对模板引擎没有太多的想法，你可以选择你喜欢的。
 
-For this tutorial we will use a PHP implementation of [Mustache](https://github.com/bobthecow/mustache.php). So install that package before you continue.
+本节将使用 [Mustache](https://github.com/bobthecow/mustache.php)模板引擎. 
 
-Another well known alternative would be [Twig](http://twig.sensiolabs.org/).
+你也可以使用 [Twig](http://twig.sensiolabs.org/).
 
-Now please go and have a look at the source code of the [engine class](https://github.com/bobthecow/mustache.php/blob/master/src/Mustache/Engine.php). As you can see, the class does not implement an interface.
+在Mustache类中 [engine class](https://github.com/bobthecow/mustache.php/blob/master/src/Mustache/Engine.php)你会发现，他并没有实现任何接口。
 
-You could just type hint against the concrete class. But the problem with this approach is that you create tight coupling.
+你可以在类型提示中直接使用Mustache 引擎类，但是这样会产生紧密耦合的问题。
 
-In other words, all your code that uses the engine will be coupled to this mustache package. If you want to change the implementation you have a problem. Maybe you want to switch to Twig, maybe you want to write your own class or you want to add functionality to the engine. You can't do that without going back and changing all your code that is tightly coupled.
+换句话说，你的代码中所有使用这个模板引擎的地方都会直接调用Mustache包。假如我们想修改部分模板接口，就会出现问题。还比如我们想更换Twig引擎，然后加上部分自己的模板逻辑。这时我们只能回去修改所有和引擎调用相关的代码，这就是紧密耦合的问题。
 
-What we want is loose coupling. We will type hint against an interface and not a class/implementation. So if you need another implementation, you just implement that interface in your new class and inject the new class instead. 
+为了松耦合，我们可以使用类型提示特性，将参数改为接口而不是具体的实现类。这时当我们要切换另外实现类的时候，只需要在新的类中实现相应的接口，这个类会自动注入到应用程序中。
 
-Instead of editing the code of the package we will use the [adapter pattern](http://en.wikipedia.org/wiki/Adapter_pattern). This sounds a lot more complicated than it is, so just follow along.
+我们可以使用适配器模式 [adapter pattern](http://en.wikipedia.org/wiki/Adapter_pattern)来处理这个问题。
 
-First let's define the interface that we want. Remember the [interface segregation principle](http://en.wikipedia.org/wiki/Interface_segregation_principle). This means that instead of large interfaces with a lot of methods we want to make each interface as small as possible. A class can extend multiple interfaces if necessary.
+首先我们可以定义接口，记住接口隔离原则[interface segregation principle](http://en.wikipedia.org/wiki/Interface_segregation_principle). 就是说确保接口方法细化，避免产生包含大量方法的接口。如果有必要，一个类可以继承多个接口。
 
-So what does our template engine actually need to do? For now we really just need a simple `render` method. Create a new folder in your `src/` folder with the name `Template` where you can put all the template related things.
-
-In there create a new interface `Renderer.php` that looks like this:
-
+这模板引擎这个实践中，我们需要的只是render这个方法。现在我们在src目录中创建Template目录，用放存放和模板相关的代码，然后创建Renderer.php接口：
 ```php
 <?php
 
@@ -37,7 +34,7 @@ interface Renderer
 }
 ```
 
-Now that this is sorted out, let's create the implementation for mustache. In the same folder, create the file `MustacheRenderer.php` with the following content:
+然后创建基于mustache的实现类，在同一个目录下，创建MustacheRenderer.php:
 
 ```php
 <?php
@@ -62,13 +59,13 @@ class MustacheRenderer implements Renderer
 }
 ```
 
-As you can see the adapter is really simple. While the original class had a lot of methods, our adapter is really simple and only fulfills the interface.
-
-Of course we also have to add a definition in our `Dependencies.php` file because otherwise the injector won't know which implementation he has to inject when you hint for the interface. Add this line:
+其实适配器模式就是这么简单。原始的实现类有很多方法，而新的类只需要实现适配器接口即可。
+我们需要这个实现类加到Dependencies.php文件中，否则依赖注入器不知道接口的哪个实现类要被注入到处理逻辑中。
 
 `$injector->alias('Example\Template\Renderer', 'Example\Template\MustacheRenderer');`
 
-Now in your `Homepage` controller, add the new dependency like this:
+
+现在加Homepage控制器里，可以添加新的依赖了。
 
 ```php
 <?php
@@ -98,7 +95,7 @@ class Homepage
 ...
 ```
 
-We also have to rewrite the `show` method. Please note that while we are just passing in a simple array, Mustache also gives you the option to pass in a view context object. We will go over this later, for now let's keep it as simple as possible.
+我们还需要重写show方法，Mustache支持向械板中传递对象，我们先只传递简单的数组给模板。
 
 ```php
     public function show()
@@ -111,9 +108,7 @@ We also have to rewrite the `show` method. Please note that while we are just pa
     }
 ```
 
-Now go check quickly in your browser if everything works. By default Mustache uses a simple string handler. But what we want is template files, so let's go back and change that.
-
-To make this change we need to pass an options array to the `Mustache_Engine` constructor. So let's go back to the `Dependencies.php` file and add the following code:
+打开浏览器，看看是否工作正常。默认Mustache会使用字符串加载器，但我们需要的是模板文件。Mustache_Engine类构造函数中有关于加载器的配置。打开Dependencies.php,修改:
 
 ```php
 $injector->define('Mustache_Engine', [
@@ -125,17 +120,18 @@ $injector->define('Mustache_Engine', [
 ]);
 ```
 
-We are passing an options array because we want to use the `.html` extension instead of the default `.mustache` extension. Why? Other template languages use a similar syntax and if we ever decide to change to something else then we won't have to rename all the template files.
+这里我们将mustache引擎默认的文件后缀从.mustache改为.html，这样是为了方便以后我们更像别的模板引擎。
 
-In your project root folder, create a `templates` folder. In there, create a file `Homepage.html`. The content of the file should look like this:
+在网站根目录下，我们创建templates目录，加入homepage.html文件：
 
 ```
 <h1>Hello World</h1>
 Hello {{ name }}
 ```
 
-Now you can go back to your `Homepage` controller and change the render line to `$html = $this->renderer->render('Homepage', $data);`
+然后将Homepage 控制器里的render代码改为：
 
-Navigate to the hello page in your browser to make sure everything works. And as always, don't forget to commit your changes.
+$html = $this->renderer->render('Homepage', $data);
 
-[<< previous](08-dependency-injector.md) | [next >>](10-dynamic-pages.md)
+打开浏览器看看吧！别忘了提交代码!
+[<< 上一节](08-dependency-injector.md) | [下一节 >>](10-dynamic-pages.md)

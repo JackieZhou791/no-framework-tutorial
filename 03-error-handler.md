@@ -1,17 +1,16 @@
-[<< previous](02-composer.md) | [next >>](04-http.md)
+[<< 上一节](02-composer.md) | [下一节 >>](04-http.md)
 
-### Error Handler
+### 错误处理
 
-An error handler allows you to customize what happens if your code results in an error.
+代码中的定制错误处理，可以帮助我们快速定位各种类型的错误。
 
-A nice error page with a lot of information for debugging goes a long way during development. So the first package for your application will take care of that.
+好的错误处理最好可以帮忙代码的调试，所以第一个项目一定要注意它的处理。
 
-I like [filp/whoops](https://github.com/filp/whoops), so I will show how you can install that package for your project. If you prefer another package, feel free to install that one. This is the beauty of programming without a framework, you have total control over your project.
+笔者喜欢 [filp/whoops](https://github.com/filp/whoops), 本系统教程里会使用它。如果你中意别的开发包，也可以选择使用其他的，这就是定制开发的好处，完全控制自己想要的代码。
 
-An alternative package would be: [PHP-Error](https://github.com/JosephLenton/PHP-Error)
+另外也可以尝试 [PHP-Error](https://github.com/JosephLenton/PHP-Error)
 
-To install a new package, open up your `composer.json` and add the package to the require part. It should now look like this:
-
+在composer.json将的require block中增加所要的包信息，进行安装
 ```php
 "require": {
     "php": ">=5.5.0",
@@ -19,15 +18,18 @@ To install a new package, open up your `composer.json` and add the package to th
 },
 ```
 
-Now run `composer update` in your console and it will be installed.
+在命令行中输入composer.update， filp/whoops包就会被下载安装
 
-But you can't use it yet. PHP won't know where to find the files for the classes. For this you will need an autoloader, ideally a [PSR-4](http://www.php-fig.org/psr/psr-4/) autoloader. Composer already takes care of this for you, so you only have to add a `require __DIR__ . '/../vendor/autoload.php';` to your `Bootstrap.php`.
+但是还不能使用它，PHP不知道如何找到对应的文件。这时候我们需要一个autoloader自动加载器，最理想的是 [PSR-4](http://www.php-fig.org/psr/psr-4/) 加载器. Composer已经为我们处理好，我们只需要将下面的代码加入到Bootstrap.php文件中：
+```php
+require __DIR__ . '/../vendor/autoload.php’;
+```
 
-**Important:** Never show any errors in your production environment. A stack trace or even just a simple error message can help someone to gain access to your system. Always show a user friendly error page instead and send an email to yourself, write to a log or something similar. So only you can see the errors in the production environment.
+**重要提示:** 不要在生产环境中显示任何错误信息，一串错误追溯信息甚至一条简单的错误提示都有可能让别人获得你的系统权限。使用友好的错误提示或发送一封邮件到管理员邮箱，或者写日志等方式，确保只有网站管理员有权限看到生产环境的错误信息。
 
-For development that does not make sense though -- you want a nice error page. The solution is to have an environment switch in your code. For now you can just set it to `development`.
+开发环境则不同，需要大量的错误提示信息。增加environment变量，在代码中进行切换的办法可以方便的实现分享，现在我们将environment设置为development。
 
-Then after the error handler registration, throw an `Exception` to test if everything is working correctly. Your `Bootstrap.php` should now look similar to this:
+注册错误处理类之后，可以抛出一个异常来测试是否工作正常，现在Bootstrap.php文件应该是这样：
 
 ```php
 <?php
@@ -57,6 +59,6 @@ throw new \Exception;
 
 ```
 
-You should now see a error page with the line highlighted where you throw the exception. If not, go back and debug until you get it working. Now would also be a good time for another commit.
+你应该已经看到一个有高度提示的错误页面。如果没有，请检查上面的步骤。
 
-[<< previous](02-composer.md) | [next >>](04-http.md)
+[<< 上一节](02-composer.md) | [下一节 >>](04-http.md)

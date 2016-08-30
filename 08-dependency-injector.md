@@ -1,12 +1,12 @@
-[<< previous](07-inversion-of-control.md) | [next >>](09-templating.md)
+[<< 上一节](07-inversion-of-control.md) | [下一节 >>](09-templating.md)
 
-### Dependency Injector
+### 依赖注入器 
 
-A dependency injector resolves the dependencies of your class and makes sure that the correct objects are injected when the class is instantiated.
+依赖注入器的目的是处理依赖问题，确保当类实例化的时候，正确的对象能被注入。
 
-There is only one injector that I can recommend: [Auryn](https://github.com/rdlowrey/Auryn). Sadly all the alternatives that I am aware of are using the [service locator antipattern](http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/).
+老实讲，笔者只推荐使用: [Auryn](https://github.com/rdlowrey/Auryn). 遗憾的是基本所有的替代器都在使用 [service locator antipattern](http://blog.ploeh.dk/2010/02/03/ServiceLocatorisanAnti-Pattern/).
 
-Install the Auryn package and then create a new file called `Dependencies.php` in your `src/` folder. In there add the following content:
+安装完Auryn后在src目录中创建Dependencies.php
 
 ```php
 <?php
@@ -29,13 +29,13 @@ $injector->share('Http\HttpResponse');
 return $injector;
 ```
 
-Make sure you understand what `alias`, `share` and `define` are doing before you continue. You can read about them in the [Auryn documentation](https://github.com/rdlowrey/Auryn).
+继续下去之前，确保你已经理解了alias,share, define这意义和用法。请前往Auryn 文档了解更多。
 
-You are sharing the HTTP objects because there would not be much point in adding content to one object and then returning another one. So by sharing it you always get the same instance.
+Share Http对象可以做到http对象的唯一性，避免出现同一类被实例化多次，出现http对象的不一致。
 
-The alias allows you to type hint the interface instead of the class name. This makes it easy to switch the implementation without having to go back and edit all your classes that use the old implementation.
+Alias的可以用接口代码类来进行类型映射，这样有助于继承类代码的维护，不用去修改原始的类实现。
 
-Of course your `Bootstrap.php` will also need to be changed. Before you were setting up `$request` and `$response` with `new` calls. Switch that to the injector now so that we are using the same instance of those objects everywhere.
+现在Bootstrap.php需要修改了，在$request和$response被实例化前，将他们注册到injector中确保所有地方的实例的唯一性。
 
 ```php
 $injector = include('Dependencies.php');
@@ -43,25 +43,22 @@ $injector = include('Dependencies.php');
 $request = $injector->make('Http\HttpRequest');
 $response = $injector->make('Http\HttpResponse');
 ```
+路由调度也需要修改
 
-The other part that has to be changed is the dispatching of the route. Before you had the following code:
-
+将
 ```php
 $class = new $className($response);
 $class->$method($vars);
 ```
 
-Change that to the following:
+改为
 
 ```php
 $class = $injector->make($className);
 $class->$method($vars);
 ```
 
-Now all your controller constructor dependencies will be automatically resolved with Auryn.
-
-Go back to your `Homepage` controller and change it to the following:
-
+现在所有的控制器依赖就由Auryn来自动处理了，Homepage.php改为：
 ```php
 <?php
 
@@ -90,8 +87,9 @@ class Homepage
 }
 ```
 
-As you can see now the class has two dependencies. Try to access the page with a GET parameter like this `http://localhost:8000/?name=Arthur%20Dent`.
+现在你看到有Homepage类有两个依赖，试着访问一个带GET参数的url
+http://localhost:8000/?name=Arthur%20Dent .
 
-Congratulations, you have now successfully laid the groundwork for your application. 
+祝贺你，现在这个应用程序的基础基本被打好了。
 
-[<< previous](07-inversion-of-control.md) | [next >>](09-templating.md)
+[<< 上一节](07-inversion-of-control.md) | [下一节 >>](09-templating.md)

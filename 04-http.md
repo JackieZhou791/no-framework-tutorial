@@ -1,18 +1,16 @@
-[<< previous](03-error-handler.md) | [next >>](05-router.md)
+[<< 上一节](03-error-handler.md) | [下一节 >>](05-router.md)
 
 ### HTTP
 
-PHP already has a few things built in to make working with HTTP easier. For example there are the [superglobals](http://php.net/manual/en/language.variables.superglobals.php) that contain the request information.
+PHP 提供了很多内置的特性用来方便的处理HTTP，比如 [超全局变量](http://php.net/manual/en/language.variables.superglobals.php) 就包含了所以的请求信息。
 
-These are good if you just want to get a small script up and running without much thought on maintenance. However, if you want to write clean, maintainable, [SOLID](http://en.wikipedia.org/wiki/SOLID_%28object-oriented_design%29) code, then you will want a class with a nice object-oriented interface that you can use in your application.
+如果你只是写一个脚本，可以很简单的使用全局变量来处理。而如果要写出干净，可维护，符合[SOLID](http://en.wikipedia.org/wiki/SOLID_%28object-oriented_design%29)的代码，就需要一个面向的对象的类来处理请求。
 
-Once again, you don't have to reinvent the wheel and just install a package. I decided to write my own [HTTP component](https://github.com/PatrickLouys/http) because I did not like the existing components, but you don't have to do the same.
-
+再强调一次，不用发明轮子，只需要安装一个你喜欢的第三方开发包即可。这里笔者使用了自己开发的一个组件 [HTTP component](https://github.com/PatrickLouys/http) 。
+你可以使用下面的其它.
 Some alternatives: [Symfony HttpFoundation](https://github.com/symfony/HttpFoundation), [Nette HTTP Component](https://github.com/nette/http), [Aura Web](https://github.com/auraphp/Aura.Web), [sabre/http](https://github.com/fruux/sabre-http)
 
-In this tutorial I will use my own HTTP component, but of course you can use whichever package you like most. Just change the code accordingly.
-
-Again, edit the `composer.json` to add the new component and then run `composer update`:
+安装组件只需修改composer.json并运行composer.update
 
 ```json
 "require": {
@@ -22,16 +20,16 @@ Again, edit the `composer.json` to add the new component and then run `composer 
 },
 ```
 
-Now you can add the following below your error handler code in your `Bootstrap.php` (and don't forget to remove the exception):
+现在可以把下面的代码下入到Bootstrap.php的错误处理下面
 
 ```php
 $request = new \Http\HttpRequest($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER);
 $response = new \Http\HttpResponse;
 ```
 
-This sets up the `Request` and `Response` objects that you can use in your other classes to get request data and send a response back to the browser.
+这里我们创建了Request和Response两个对象，你可以在其它类中获取请求，发送内容回浏览器。
 
-To actually send something back, you will also need to add the following snippet at the end of your `Bootstrap.php` file:
+当发送响应数据时，需要将下面的代码添加到Bootstrap.php的最后
 
 ```php
 foreach ($response->getHeaders() as $header) {
@@ -41,26 +39,26 @@ foreach ($response->getHeaders() as $header) {
 echo $response->getContent();
 ```
 
-This will send the response data to the browser. If you don't do this, nothing happens as the `Response` object only stores data. This is handled differently by most other HTTP components where the classes send data back to the browser as a side-effect, so keep that in mind if you use another component.
+这样才会将响应数据发送到浏览器端，如果不这样，Response对象只是存储了数据。各个不同的http 组件处理的方式大同小异，当你使用那些组件的时候记住这点。
 
-The second parameter of `header()` is false because otherwise existing headers will be overwritten.
+header函数的第二个参数是false，作用是不覆盖已经存在的header变量。
 
-Right now it is just sending an empty response back to the browser with the status code `200`; to change that, add the following code between the code snippets from above:
+现在Response发送了空的内容到浏览器，http状态码为200.你可以改成你想要的内容，像下面的代码：
 
 ```php
 $content = '<h1>Hello World</h1>';
 $response->setContent($content);
 ```
 
-If you want to try a 404 error, use the following code:
+如果你返回404错误，下面的代码：
 
 ```php
 $response->setContent('404 - Page not found');
 $response->setStatusCode(404);
 ```
 
-Remember that the object is only storing data, so you if you set multiple status codes before you send the response, only the last one will be applied.
+记住对象只用来存储数据，所以只是最后一个状态码会被返回给浏览器，就算你在对象中设置了很多次状态码。
 
-I will show you in later parts how to use the different features of the components. In the meantime, feel free to read the [documentation](https://github.com/PatrickLouys/http) or the source code if you want to find out how something works.
+下文中将会涉及组件的基本功能，同时，多看组件文档或代码有助于理解相关的内容。
 
-[<< previous](03-error-handler.md) | [next >>](05-router.md)
+[<< 上一节](03-error-handler.md) | [下一节 >>](05-router.md)

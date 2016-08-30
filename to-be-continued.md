@@ -1,17 +1,23 @@
-### To be continued...
+### 未完待续...
 
-Congratulations. You made it this far.
+祝贺你, 你搞定了前面的.
 
-I hope you were following the tutorial step by step and not just skipping over the chapters :)
+但愿你有按照这系统文章, 一节节的实践过 :)
 
-I have received good feedback so far so I decided to start writing a book. [Click here](http://artofphp.com/) to learn more about that.
+我收到了很多好的反馈,然后正准备写本书, 可以去 [这里](http://artofphp.com/) 了解更多内容.
 
-But don't worry, I will also keep working on this tutorial. I was a bit lazy over the summer but now that it getting colder again I will have much more time to spend on the tutorial.
+但别关键,我还会继续更新这个系统的教程. 这个夏天让我变懒了, 天气变凉的时候我可能有更多希望投入到这系统文章的更新中.
 
-If you got something out of the tutorial I would appreciate a star. It's the only way for me to see if people are actually reading this :)
+要是你从这里学到了一点东西, Github上的star是最多的礼物~ 对我来说,唯一的愿望是希望大家真正的读到这篇文章 :)
 
 
 
-Thanks for your time,
+谢谢你的宝贵时间,
 
 Patrick
+
+译者注:
+
+闲时的一点翻译,暂未得到原作者授权. 转载请注明出处 
+
+[PatrickLouys/no-framework-tutorial]https://github.com/PatrickLouys/no-framework-tutorial

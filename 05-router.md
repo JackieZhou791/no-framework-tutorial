@@ -1,18 +1,18 @@
-[<< previous](04-http.md) | [next >>](06-dispatching-to-a-class.md)
+[<< 上一节](04-http.md) | [下一节 >>](06-dispatching-to-a-class.md)
 
-### Router
+### 路由
 
-A router dispatches to different handlers depending on rules that you have set up.
+路由调度就是将不同的请求根据定义的规则调度到不同的处理程序。
 
-With your current setup it does not matter what URL is used to access the application, it will always result in the same response. So let's fix that now.
+上节中的代码URL请求只有一个返回结果，现在我们来增加路由功能。
 
-I will use [FastRoute](https://github.com/nikic/FastRoute) in this tutorial. But as always, you can pick your own favorite package.
+本节中使用 [FastRoute](https://github.com/nikic/FastRoute) 来处理路由. 你可以选择你喜欢的组件，比如下列组件：
 
-Alternative packages: [symfony/Routing](https://github.com/symfony/Routing), [Aura.Router](https://github.com/auraphp/Aura.Router), [fuelphp/routing](https://github.com/fuelphp/routing), [Klein](https://github.com/chriso/klein.php)
+[symfony/Routing](https://github.com/symfony/Routing), [Aura.Router](https://github.com/auraphp/Aura.Router), [fuelphp/routing](https://github.com/fuelphp/routing), [Klein](https://github.com/chriso/klein.php)
 
-By now you know how to install Composer packages, so I will leave that to you.
+你应该已经学会了如何安装组件了
 
-Now add this code block to your `Bootstrap.php` file where you added the 'hello world' message in the last part.
+现在将下面的代码加入到Bootstrap.php中替换上文中返回’Hello World’的地方
 
 ```php
 $dispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
@@ -42,11 +42,11 @@ switch ($routeInfo[0]) {
 }
 ```
 
-In the first part of the code, you are registering the available routes for you application. In the second part, the dispatcher gets called and the appropriate part of the switch statement will be executed. If a route was found, the handler callable will be executed.
+第一部分代码，你注册了应用程序可用的路由。第二部分调度方法被调用，进行switch语句中，如果路由找到了，相应的处理逻辑就会执行。
 
-This setup might work for really small applications, but once you start adding a few routes your bootstrap file will quickly get cluttered. So let's move them out into a separate file.
+对是很小的项目，这样增加路由的方式可能够用。一旦项目很大，不可能在bootstrap文件中增加大量的路由，所以我们将它单独出一个文件。
 
-Create a `Routes.php` file in the `src/` folder. It should look like this:
+在src目录下创建Routes.php文件。
 
 ```php
 <?php
@@ -61,7 +61,7 @@ return [
 ];
 ```
 
-Now let's rewrite the route collection part to use the `Routes.php` file.
+Route集合也分离出来.
 
 ```php
 $routeDefinitionCallback = function (\FastRoute\RouteCollector $r) {
@@ -74,6 +74,6 @@ $routeDefinitionCallback = function (\FastRoute\RouteCollector $r) {
 $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback);
 ```
 
-This is already an improvement, but now all the handler code is in the `Routes.php` file. This is not optimal, so let's fix that in the next part.
+本节里加入了路由功能，改进了一点，但是路由调处还在Routes.php里，这不太理想，下节就来处理路由调度。
 
-[<< previous](04-http.md) | [next >>](06-dispatching-to-a-class.md)
+[<< 上一节](04-http.md) | [下一节 >>](06-dispatching-to-a-class.md)

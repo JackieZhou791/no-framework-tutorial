@@ -1,12 +1,12 @@
-[<< previous](09-templating.md) | [next >>](11-page-menu.md)
+[<< 上一节](09-templating.md) | [下一节 >>](11-page-menu.md)
 
-### Dynamic Pages
+### 动态页面
 
-So far we only have a static page with not much functionality. Just having a hello world example is not very useful, so let's go beyond that and add some real functionality to our application.
+到现在为止，我们已经可以创建没有多少功能的静态页面了。“Hello World”实在没有太大用处，现在我们给应用程序加一个有实际功能的逻辑。
 
-Our first feature will be dynamic pages generated from [markdown](http://en.wikipedia.org/wiki/Markdown) files.
+第一个功能是根据[MD](http://en.wikipedia.org/wiki/Markdown) 文件生成动态页面。
 
-Create a `Page` controller with the following content:
+先创建一个Page控制器：
 
 ```php
 <?php
@@ -21,25 +21,25 @@ class Page
     }
 }
 ```
-Once you have done that, add a new route:
+然后添加下面的路由：
 
 ```php
 ['GET', '/{slug}', ['Example\Controllers\Page', 'show']],
 ```
 
-Now try and visit a few urls, for example `http://localhost:8000/test` and `http://localhost:8000/hello`. As you can see, the `Page` controller is called every time and the `$params` array receives the slug of the page.
+尝试访问下http://localhost:8000/test，或http://localhost:8000/hello. Page控制器会被调用，$params数组会接收网站中的slug参数。
 
-So let's create a few pages to get started. We won't use a database yet, so create a new folder `pages` in the root folder of your project. In there add a few files with the file extensions `.md` and add some text to them. For example `page-one.md` with the content:
+因为还没有使用数据库，我们先在网站根目录下创建pages目录，在里加新增一些.md后缀的文件。比如page-one.md:
 
 ```
 This is a page.
 ```
 
-Now we will have to write some code to read the proper file and display the content. It might seem tempting to just put all that code into the `Page` controller. But remember [Separation of Concerns](http://en.wikipedia.org/wiki/Separation_of_concerns). There is a good chance that we will need to read the pages in other places in the application as well (for example in an admin area).
+我们需要写代码将这些文件的数据读取并展示。也许我们可以直接将代码都写在page控制器里，但要记住分离关注原则，其他地方也可能读取这些文件。
 
-So let's put that functionality into a separate class. There is a good chance that we might switch from files to a database later, so let's use an interface again to make our page reader decoupled from the actual implementation.
+所以我们将处理逻辑放在单独的文件中。还要考虑到，可能以后会将文件数据放在数据库中，所以我们可以先定义接口，具体的操作再基于这个接口来实现。
 
-In your 'src' folder, create a new folder `Page`. In there we will put all the page related classes. Add a new file in there called `PageReader.php` with this content:
+在src目录中新建Page目录，把相关的类放在这个目录下，先创建PageRender.php:
 
 ```php
 <?php
@@ -52,7 +52,7 @@ interface PageReader
 }
 ```
 
-For the implementation, create a `FilePageReader.php` file. The file will looks like this:
+文件读取的类实现，可以是FilePageReader.php:
 
 ```php
 <?php
@@ -80,15 +80,19 @@ class FilePageReader implements PageReader
 }
 ```
 
-As you can see we are requiring the page folder path as a constructor argument. This makes the class flexible and if we decide to move files or write unit tests for the class, we can easily change the location with the constructor argument.
+你会发现我们将页面目录作为这个类的构造函数参数，这样当我们改变页面存放目录或做单元测试的时候，就可以很方便的指定不同的参数了。
 
-You could also put the page related things into it's own package and reuse it in different applications. Because we are not tightly coupling things, things are very flexible.
+你也可以把Page相关的处理代码放在独立的包中，方便不同的应用程序重用。因为我们的目标就是松耦合。
 
-Because PHP does not have the ability to type hint for scalar values (things like strings and integers), we have to manually check that `$pageFolder` is a string. If we don't do that, there might be a bug in the future that is hard to find if a wrong type is injected. By throwing an exception, this can be caught and debugged immediately.
+因为php是弱类型语言，无法为变量提供类型提示功能，我们需要手动检查$pageFolder变量是否是字符串，如果不做检查，这很可能出现依赖注入相关的错误，检查可以抛出异常方便开发和调试。
 
-This will do for now. Let's create a template file for our pages with the name `Page.html` in the `templates` folder. For now just add `{{ content }}` in there.
+现在我们在templates目录下创建Page.html,就加上{{content}}:
 
-Add the following to your `Dependencies.php` file so that the application know which implementation to inject for our new interface. We also define the the `pageFolder` there.
+```php
+{{content}}
+```
+
+然后就下面的代码加到Dependencies.php中，这样基于PageReader接口的实现类就可以被注入到处理逻辑中.
 
 ```php
 $injector->define('Example\Page\FilePageReader', [
@@ -99,8 +103,7 @@ $injector->alias('Example\Page\PageReader', 'Example\Page\FilePageReader');
 $injector->share('Example\Page\FilePageReader');
 ```
 
-
-Now go back to the `Page` controller and change the `show` method to the following:
+修改Page控制器的show方法：
 
 ```php
 public function show($params)
@@ -112,11 +115,7 @@ public function show($params)
 }
 ```
 
-To make this work, we will need to inject a `Response`, `Renderer` and a `PageReader`. I will leave this to you as an exercise. Remember to `use` all the proper namespaces. Use the `Homepage` controller as a reference.
-
-Did you get everything to work?
-
-If not, this is how the beginning of your controller should look now:
+这里我们将Response,Renderer， PageReader 注入到Page控制器中。
 
 ```php
 <?php
@@ -145,9 +144,9 @@ class Page
 ...
 ```
 
-So far so good, now let's make our `FilePageReader` actually do some work.
+打开浏览器看看结果。到同在为止FilePageReader已经生效。我们再来处理读取md部分。
 
-Again, let's check first that the proper type was passed into the method:
+检查readBySlug参数，必须是合法的字符串：
 
 ```php
 public function readBySlug($slug)
@@ -158,7 +157,7 @@ public function readBySlug($slug)
 }
 ```
 
-We also need to be able to communicate that a page was not found. For this we can create a custom exception that we can catch later. In your `src/Page` folder, create a `InvalidPageException.php` file with this content:
+还需要加上页面无法找到的错误处理，在/src/Page目录下创建InvalidPageException.php：
 
 ```php
 <?php
@@ -177,7 +176,7 @@ class InvalidPageException extends Exception
 }
 ```
 
-Then in the `FilePageReader` file add this code at the end of your `readBySlug` method:
+然后把判断加在readBySlug方法中：
 
 ```php
 $path = "$this->pageFolder/$slug.md";
@@ -189,11 +188,10 @@ if(!file_exists($path)) {
 return file_get_contents($path);
 ```
 
-Now if you navigate to a page that does not exist, you should see an `InvalidPageException`. If a file exists, you should see the content.
+现在如果输入不存在的页面，会看到InvalidPageException异常。如果文件存在，就会看到内容。
 
-Of course showing the user an exception for an invalid URL does not make sense. So let's catch the exception and show a 404 error instead.
+当然把错误页面的异常信息抛给用户没有实际意义，我们就在捕获到异常时显示404页面。
 
-Go to your `Page` controller and refactor the `show` method so that it looks like this:
 
 ```php
 public function show($params)
@@ -212,15 +210,13 @@ public function show($params)
 }
 ```
 
-Add this at the top of your file:
+将异常声明加上文件的顶部：
 ```php
 use Example\Page\InvalidPageException;
 ```
 
-It is important that you don't forget this step, otherwise it will try to catch the wrong exception (it's looking in the wrong namespace) and thus will never catch it. 
+这一点非常重要，否则会捕捉错误的异常。
 
-Try a few different URLs to check that everything is working as it should. If something is wrong, go back and debug it until it works.
+打开浏览器，测试下是不是工作正常。多哆嗦一次，提交代码！
 
-And as always, don't forget to commit your changes.
-
-[<< previous](09-templating.md) | [next >>](11-page-menu.md)
+[<< 上一节](09-templating.md) | [下一节 >>](11-page-menu.md)

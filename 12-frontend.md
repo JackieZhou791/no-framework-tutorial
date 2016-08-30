@@ -1,13 +1,13 @@
-[<< previous](11-page-menu.md) | [next >>](to-be-continued.md)
+[<< 上一节](11-page-menu.md) | [下一节 >>](to-be-continued.md)
 
 
-### Frontend
+### 前端
 
-I don't know about you, but I don't like to work on a site that looks two decades old. So let's improve the look of our little application.
+程序部分处理到上节已经差不多，是时候给网站改点样式了。
 
-This is not a frontend tutorial, so we'll just [pure](http://purecss.io/) and call it a day.
+这里不讲前端的教程，大概使用一下[pure](http://purecss.io/).
 
-First we need to change the `Layout.html` template. I don't want to waste your time with HTML and CSS, so I'll just provide the code for you to copy paste.
+先修改Layout.html
 
 ```php
 <!doctype html>
@@ -40,9 +40,7 @@ First we need to change the `Layout.html` template. I don't want to waste your t
 </html>
 ```
 
-You will also need some custom CSS. This is a file that we want publicly accessible. So where do we put it? Exactly, in the public folder.
-
-But to keep things a little organized, add a `css` folder in there first and then create a `style.css` with the following content:
+然后将自己的样式加在style.css文件里：
 
 ```css
 body {
@@ -167,15 +165,13 @@ body {
 }
 ```
 
-Now if you have a look at your site again, things should look a little better. Feel free to further improve the look of it yourself later. But let's continue with the tutorial now.
+再看看网站，是不是感觉好多了。
 
-Every time that you need an asset or a file publicly available, then you can just put it in your `public` folder. You will need this for all kinds of assets like javascript files, css files, images and more.
+所以静态相关的资源都可以放在public目录，比如可能会到的javascript,css,imges等等
 
-So far so good, but it would be nice if our visitors can see what page they are on.
+（译者注：这里提到用户最好知道自己在哪个页面上，然后加页面，但后文没有具体展开）
 
-Of course we need more than one page in the menu for this. I will just use the `page-one.md` that we created earlier in the tutorial. But feel free to add a few more pages and add them as well.
-
-Go back to the `ArrayMenuReader` and add your new pages to the array. It should look something like this now:
+现在可以加多一些页面了，在pages目录中创建page-one.md文件，然后修改菜单:
 
 ```php
 return [
@@ -184,5 +180,5 @@ return [
 ];
 ```
 
-[<< previous](11-page-menu.md) | [next >>](to-be-continued.md)
+[<< 上一页](11-page-menu.md) | [下一页 >>](to-be-continued.md)
 
