@@ -7,8 +7,10 @@ PHP 提供了很多内置的特性用来方便的处理HTTP，比如 [超全局�
 如果你只是写一个脚本，可以很简单的使用全局变量来处理。而如果要写出干净，可维护，符合[SOLID](http://en.wikipedia.org/wiki/SOLID_%28object-oriented_design%29)的代码，就需要一个面向的对象的类来处理请求。
 
 再强调一次，不用发明轮子，只需要安装一个你喜欢的第三方开发包即可。这里笔者使用了自己开发的一个组件 [HTTP component](https://github.com/PatrickLouys/http) 。
-你可以使用下面的其它.
-Some alternatives: [Symfony HttpFoundation](https://github.com/symfony/HttpFoundation), [Nette HTTP Component](https://github.com/nette/http), [Aura Web](https://github.com/auraphp/Aura.Web), [sabre/http](https://github.com/fruux/sabre-http)
+
+你可以使用下面的其它:
+
+[Symfony HttpFoundation](https://github.com/symfony/HttpFoundation), [Nette HTTP Component](https://github.com/nette/http), [Aura Web](https://github.com/auraphp/Aura.Web), [sabre/http](https://github.com/fruux/sabre-http)
 
 安装组件只需修改composer.json并运行composer.update
 
