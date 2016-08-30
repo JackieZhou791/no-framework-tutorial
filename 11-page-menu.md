@@ -2,9 +2,9 @@
 
 ### 页面菜单
 
-上节中我们已经可以创建很多动态页面了，但是终端用户是不知道这些页面的链接的。所以本节我们来创建导航菜单，为了重用这个菜单，单独创建一个文章，其它的页面只用调用。
+上节中我们已经可以创建很多动态页面了，但是终端用户是不知道这些页面的链接的。所以本节我们来创建导航菜单，为了重用这个菜单，单独创建一个文件，其它的页面只用调用它。
 
-从实践的角度来看，最开始如果我们使用一个包含模板的扩展模板引擎，这时会省下很多力气来手动创建模板文件，像layout,tempalte之类。很遗憾Mustache本身不包含这些，Twig就是不错的选择，好吧，下面我们使用Twig来完成本节。
+从实践的角度来看，最开始如果我们使用一个包含具体模板的扩展模板引擎，这时会省下很多力气来手动创建模板文件，像layout,tempalte之类。很遗憾Mustache本身不提供这些，Twig就是不错的选择，好吧，下面我们使用Twig来完成本节。
 
 [Twig](http://twig.sensiolabs.org/).
 
@@ -47,9 +47,9 @@ $injector->delegate('Twig_Environment', function() use ($injector) {
 });
 ```
 
-这里我们使用delegate来创建类而不是define.后台会讲解有什么作用。
+这里我们使用delegate来创建类而不是define，这样的目的是可以在(匿名)函数中创建类.
 
-然后修改Dependencies.php中Rendererk别名
+然后修改Dependencies.php中Renderer别名
 
 ```php
 $injector->alias('Example\Template\Renderer', 'Example\Template\TwigRenderer');
@@ -77,7 +77,7 @@ $data = [
 
 现在菜单只在首页有效，如果想在其他页面也有的话，复制到其他页面的模板中就可以了。不，这样做很不好。一旦菜单标签要修改，要修改所有的文件。
 
-我们可以通过layout布局文件来处理这个,在templates目录下创建Layout.html
+我们可以通过layout布局文件来处理这个,在templates目录下创建Layout.html:
 
 ```php
 {% for item in menuItems %}
@@ -107,7 +107,7 @@ $data = [
 {% endblock %}
 ```
 
-刷新首页，菜单出现了。可是子页面没有，只是一个<hr>,这是因为menuItems只传给了首页，我们可以使用全局变量来处理，不过这样不太好。因为站点有很多不同的界面，前台/后台/管理端，这些都需要菜单，全局变量也是个麻烦事。
+刷新首页，菜单出现了。可是子页面没有，只是一个<hr>,这是因为menuItems只传给了首页，我们可以使用全局变量来处理，不过这样不太好。因为站点有很多不同的界面，前台/后台/管理端，这些都需要菜单，全局变量会变成麻烦事。
 
 这时我们创建一个新的接口来处理不同的端的菜单需求：
 
@@ -157,7 +157,7 @@ $injector->alias('Example\Template\FrontendRenderer', 'Example\Template\Frontend
 
 然后将控制中的Renderer注入改为FrontendRenderer,确保文件中use了正确的完整路径。
 
-删掉Homage控制器中menuItems的赋值：
+删掉Homepage控制器中menuItems的赋值：
 
 ```php
 'menuItems' => [['href' => '/', 'text' => 'Homepage']],

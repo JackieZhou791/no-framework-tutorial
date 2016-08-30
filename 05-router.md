@@ -12,7 +12,7 @@
 
 你应该已经学会了如何安装组件了
 
-现在将下面的代码加入到Bootstrap.php中替换上文中返回’Hello World’的地方
+现在将下面的代码加入到Bootstrap.php中,替换上节中返回’Hello World’的地方
 
 ```php
 $dispatcher = \FastRoute\simpleDispatcher(function (\FastRoute\RouteCollector $r) {
@@ -42,9 +42,9 @@ switch ($routeInfo[0]) {
 }
 ```
 
-第一部分代码，你注册了应用程序可用的路由。第二部分调度方法被调用，进行switch语句中，如果路由找到了，相应的处理逻辑就会执行。
+第一部分代码，你注册了应用程序可用的路由。第二部分调度方法被调用，进入switch语句中，如果路由找到了，相应的处理逻辑就会执行。
 
-对是很小的项目，这样增加路由的方式可能够用。一旦项目很大，不可能在bootstrap文件中增加大量的路由，所以我们将它单独出一个文件。
+对于很小的项目，这样增加路由的方式可能够用。一旦项目很大，不可能在bootstrap文件中增加大量的路由，所以我们将它单独出一个文件。
 
 在src目录下创建Routes.php文件。
 

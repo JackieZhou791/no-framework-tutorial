@@ -2,19 +2,19 @@
 
 ### 模板
 
-模板引擎对于PHP来说意义并不大，因为PHP本身可以是模板渲染工具。不过它也有好久，比如过滤数据，分享程序逻辑和模板文件，使变量和HTML更好的结合。
+模板引擎对于PHP来说意义并不大，因为PHP本身可以作为模板渲染工具。不过它也有好处，比如过滤数据，分离程序逻辑和模板文件，使变量和HTML更好的结合。
 
-最好读一读 [ircmaxell on templating](http://blog.ircmaxell.com/2012/12/on-templating.html).以及 [这个](http://chadminick.com/articles/simple-php-template-engine.html), 比较下对于模板引擎的不同观点。笔者本人对模板引擎没有太多的想法，你可以选择你喜欢的。
+最好读一读 [ircmaxell on templating](http://blog.ircmaxell.com/2012/12/on-templating.html).以及[这个](http://chadminick.com/articles/simple-php-template-engine.html), 比较下对于模板引擎的不同观点。笔者本人对模板引擎没有太多的想法，你可以选择你喜欢的。
 
 本节将使用 [Mustache](https://github.com/bobthecow/mustache.php)模板引擎. 
 
 你也可以使用 [Twig](http://twig.sensiolabs.org/).
 
-在Mustache类中 [engine class](https://github.com/bobthecow/mustache.php/blob/master/src/Mustache/Engine.php)你会发现，他并没有实现任何接口。
+你会发现,在Mustache引擎类[engine class](https://github.com/bobthecow/mustache.php/blob/master/src/Mustache/Engine.php)没有基于任何接口来实现。
 
 你可以在类型提示中直接使用Mustache 引擎类，但是这样会产生紧密耦合的问题。
 
-换句话说，你的代码中所有使用这个模板引擎的地方都会直接调用Mustache包。假如我们想修改部分模板接口，就会出现问题。还比如我们想更换Twig引擎，然后加上部分自己的模板逻辑。这时我们只能回去修改所有和引擎调用相关的代码，这就是紧密耦合的问题。
+换句话说，你的代码中所有使用这个模板引擎的地方都会直接调用Mustache类。假如我们想修改部分模板接口，就会出现问题。还比如我们想更换Twig引擎，然后加上部分自己的模板逻辑。这时我们只能回去修改所有和引擎调用相关的代码，这就是紧密耦合的问题。
 
 为了松耦合，我们可以使用类型提示特性，将参数改为接口而不是具体的实现类。这时当我们要切换另外实现类的时候，只需要在新的类中实现相应的接口，这个类会自动注入到应用程序中。
 
@@ -22,7 +22,7 @@
 
 首先我们可以定义接口，记住接口隔离原则[interface segregation principle](http://en.wikipedia.org/wiki/Interface_segregation_principle). 就是说确保接口方法细化，避免产生包含大量方法的接口。如果有必要，一个类可以继承多个接口。
 
-这模板引擎这个实践中，我们需要的只是render这个方法。现在我们在src目录中创建Template目录，用放存放和模板相关的代码，然后创建Renderer.php接口：
+在模板引擎这个例子中，我们需要的只是render这个方法。现在我们在src目录中创建Template目录，用放存放和模板相关的代码，然后创建Renderer.php接口：
 ```php
 <?php
 
@@ -64,8 +64,7 @@ class MustacheRenderer implements Renderer
 
 `$injector->alias('Example\Template\Renderer', 'Example\Template\MustacheRenderer');`
 
-
-现在加Homepage控制器里，可以添加新的依赖了。
+现在Homepage控制器里，可以注入新的依赖了:
 
 ```php
 <?php
@@ -95,7 +94,7 @@ class Homepage
 ...
 ```
 
-我们还需要重写show方法，Mustache支持向械板中传递对象，我们先只传递简单的数组给模板。
+我们还需要重写show方法，Mustache支持向模板中传递对象，我们先只传递简单的数组给模板。
 
 ```php
     public function show()
@@ -120,7 +119,7 @@ $injector->define('Mustache_Engine', [
 ]);
 ```
 
-这里我们将mustache引擎默认的文件后缀从.mustache改为.html，这样是为了方便以后我们更像别的模板引擎。
+这里我们将mustache引擎默认的文件后缀从.mustache改为.html，这样是为了方便以后我们更换别的模板引擎。
 
 在网站根目录下，我们创建templates目录，加入homepage.html文件：
 

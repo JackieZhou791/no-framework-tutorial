@@ -29,7 +29,7 @@ $injector->share('Http\HttpResponse');
 return $injector;
 ```
 
-继续下去之前，确保你已经理解了alias,share, define这意义和用法。请前往Auryn 文档了解更多。
+继续下去之前，确保你已经理解了alias,share,define这意义和用法。请前往Auryn文档了解更多。
 
 Share Http对象可以做到http对象的唯一性，避免出现同一类被实例化多次，出现http对象的不一致。
 
@@ -87,7 +87,7 @@ class Homepage
 }
 ```
 
-现在你看到有Homepage类有两个依赖，试着访问一个带GET参数的url
+现在你看到Homepage类有两个依赖注入了，试着访问一个带GET参数的url
 http://localhost:8000/?name=Arthur%20Dent .
 
 祝贺你，现在这个应用程序的基础基本被打好了。
